@@ -1,0 +1,239 @@
+\documentclass{article}\usepackage[]{graphicx}\usepackage[]{xcolor}
+% maxwidth is the original width if it is less than linewidth
+% otherwise use linewidth (to make sure the graphics do not exceed the margin)
+\makeatletter
+\def\maxwidth{ %
+  \ifdim\Gin@nat@width>\linewidth
+    \linewidth
+  \else
+    \Gin@nat@width
+  \fi
+}
+\makeatother
+
+\definecolor{fgcolor}{rgb}{0.345, 0.345, 0.345}
+\newcommand{\hlnum}[1]{\textcolor[rgb]{0.686,0.059,0.569}{#1}}%
+\newcommand{\hlstr}[1]{\textcolor[rgb]{0.192,0.494,0.8}{#1}}%
+\newcommand{\hlcom}[1]{\textcolor[rgb]{0.678,0.584,0.686}{\textit{#1}}}%
+\newcommand{\hlopt}[1]{\textcolor[rgb]{0,0,0}{#1}}%
+\newcommand{\hlstd}[1]{\textcolor[rgb]{0.345,0.345,0.345}{#1}}%
+\newcommand{\hlkwa}[1]{\textcolor[rgb]{0.161,0.373,0.58}{\textbf{#1}}}%
+\newcommand{\hlkwb}[1]{\textcolor[rgb]{0.69,0.353,0.396}{#1}}%
+\newcommand{\hlkwc}[1]{\textcolor[rgb]{0.333,0.667,0.333}{#1}}%
+\newcommand{\hlkwd}[1]{\textcolor[rgb]{0.737,0.353,0.396}{\textbf{#1}}}%
+\let\hlipl\hlkwb
+
+\usepackage{framed}
+\makeatletter
+\newenvironment{kframe}{%
+ \def\at@end@of@kframe{}%
+ \ifinner\ifhmode%
+  \def\at@end@of@kframe{\end{minipage}}%
+  \begin{minipage}{\columnwidth}%
+ \fi\fi%
+ \def\FrameCommand##1{\hskip\@totalleftmargin \hskip-\fboxsep
+ \colorbox{shadecolor}{##1}\hskip-\fboxsep
+     % There is no \\@totalrightmargin, so:
+     \hskip-\linewidth \hskip-\@totalleftmargin \hskip\columnwidth}%
+ \MakeFramed {\advance\hsize-\width
+   \@totalleftmargin\z@ \linewidth\hsize
+   \@setminipage}}%
+ {\par\unskip\endMakeFramed%
+ \at@end@of@kframe}
+\makeatother
+
+\definecolor{shadecolor}{rgb}{.97, .97, .97}
+\definecolor{messagecolor}{rgb}{0, 0, 0}
+\definecolor{warningcolor}{rgb}{1, 0, 1}
+\definecolor{errorcolor}{rgb}{1, 0, 0}
+\newenvironment{knitrout}{}{} % an empty environment to be redefined in TeX
+
+\usepackage{alltt}
+\renewcommand{\baselinestretch}{1.3}
+\usepackage[brazilian]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage{hyperref}
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+\begin{document}
+
+
+
+\section{Apresentação}
+Essa atividade é parte do conteúdo ministrado dentro do programa BRaVE da Unesp. As instituições envolvidas são a Universidade Estadual Paulista "Julio de Mesquita Filho" campus de Dracena (FCAT) e a ???????????????
+A atividade proposta é a simulação de alguns aspectos de um programa de Melhoramento Genético Animal, de forma que os alunos possam consolidar seus conhecimentos recebidos percebendo e aplicando elementos recebidos durante os seus respectivos cursos nas suas Universidades.
+\section{Visão Geral da Atividade}
+Cada grupo fará o papel de um gestor de um programa de melhoramento animal, tomando decisões sobre a seleção e acasalamento dos indivíduos da população.
+A atividade acontecerá em duas etapas:
+\begin{enumerate}
+\item Seleção e decisões de acasalamento baseados em uma única característica durante m gerações (início do programa)
+\item Seleção e decisões de acasalamento baseados em mais de uma característica durante n gerações
+\end{enumerate}
+A cada nova geração, os gestores deverão decidir quais informações utilizar e como criar os seus critérios de seleção e definir suas estratégias de acasalamento.
+
+\section{Visão Geral do Processo de Simulação}
+
+Para simular os dados de um programa de Melhoramento Genético utilizaremos o pacote do sistema R denominado AlphaSimR.
+
+A maior parte dos processos de simulação seguem os seguintes passos:
+
+\begin{enumerate}
+\item Definir os parâmetros da simulação;
+\item Gerar a população-base (população inicial ou $G_0$);
+\item Aplicar o processo de seleção e estratégias de acasalamentos;
+\item Gerar as populações seguintes ($G_1, G_2, G_3\dots, G_n$); 
+\item Examinar os resultados.
+\end{enumerate}
+
+No AlphaSimR as simulações são realizada de forma um pouco diferente:
+
+\begin{enumerate}
+\item\label{passo1} Criar haplótipos fundadores;
+\item Ajustar parâmetros da simulação;
+\item Modelar o programa de Melhoramento Genético Animal;
+\item Examinar os resultados.
+\end{enumerate}
+
+\section{Instalando o AlphaSimR}
+
+Com o sistema R instalado no seu computador (preferencialmente junto com a interface RStudio), para instalar o AlphaSimR, basta digitar no console: 
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlkwd{install.packages}\hlstd{(}\hlstr{"AlphaSimR"}\hlstd{)}
+\end{alltt}
+\end{kframe}
+\end{knitrout}
+
+Com o pacote instalado, é necessário carregá-lo no sistema R para que suas funcionalidades possam ser utilizadas:
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlkwd{library}\hlstd{(AlphaSimR)}
+\end{alltt}
+\end{kframe}
+\end{knitrout}
+
+Se estiver utilizando o RStudio, também é possível ir até a aba "Packages" e clicar na caixa de verificação ao lado do nome do pacote.
+
+\section{Simulando...}
+
+\subsection{Haplótipos}
+
+Com o AlphaSimR carregado a primeira ação deve ser executar o passo \ref{passo1}.
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{haplo}\hlkwb{<-}\hlkwd{runMacs}\hlstd{(}\hlkwc{nInd}\hlstd{=}\hlnum{500}\hlstd{,} \hlkwc{nChr}\hlstd{=}\hlnum{25}\hlstd{,} \hlkwc{segSites}\hlstd{=}\hlnum{1000}\hlstd{,}
+               \hlkwc{species}\hlstd{=}\hlstr{"GENERIC"}\hlstd{,} \hlkwc{inbred}\hlstd{=}\hlnum{FALSE}\hlstd{)}
+\hlstd{haplo}
+\end{alltt}
+\begin{verbatim}
+## An object of class "MapPop" 
+## Ploidy: 2 
+## Individuals: 500 
+## Chromosomes: 25 
+## Loci: 25000
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
+
+A função runMacs cria os haplótipos fundadores, recebendo como argumentos o número de indivíduos (nInd), o número de cromossomos (nChr), o número de locos (segSites), o indicador da espécie a ser simulada (species) e o indicador se endogamia entre os indivíduos deve ser simulada (inbred). Olhando para os valores inseridos nos argumentos da função é possível perceber que serão simulados haplótipos para 500 indivíduos não endogâmicos que formarão a população-base ($G_0$), com cada indivíduo possuindo 25 cromossomos e 1000 locos por cromossomo. A popualação será considerada de uma espécie genérica, que não leva em consideração particularidades de alguma espécie de animal doméstico (como o número de cromossomos, nível de endogamia, etc).
+
+Os haplótipos da população-base também podem ser formados por meio da função quickHaplo, a qual recebe, basicamente, os mesmo argumento da função runMacs, entretanto, simulação de forma muito mais rápida por meio da simplificação dos processos envolvidos. Ao final da simulação, todos os locos terão seus alelos com frequência igual a 0,5 e em equilíbrio de ligação. Para saber mais sobre essa função: 
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlkwd{help}\hlstd{(}\hlstr{"quickHaplo"}\hlstd{)}
+\end{alltt}
+\end{kframe}
+\end{knitrout}
+
+\subsection{Ajustando os Parâmetros da Simulação}
+
+Essa etapa é realizada com 3 passos. No passo 1 um objeto com os parâmetros da simulação é inicializado com os haplótipos da população-base:
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{parSim}\hlkwb{<-}\hlstd{SimParam}\hlopt{$}\hlkwd{new}\hlstd{(haplo)}
+\end{alltt}
+\end{kframe}
+\end{knitrout}
+
+Note que SimParam é uma lista do AlphaSimR e acessa-se a função \emph{new}, que é um componente da lista, por meio do símbolo \$. Nesse passo, a lista SimParam é inicializada com as informações dos haplótipos gerados no passo anterior.
+
+O próximo passo é adicionar características à simulação. Uma características com apenas efeitos genéticos aditivos pode ser criada acessando-se a função \emph{addTraitA} que é outro componente da lista SimParam:
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{parSim}\hlopt{$}\hlkwd{addTraitA}\hlstd{(}\hlkwc{nQtlPerChr}\hlstd{=}\hlnum{1000}\hlstd{)}
+\end{alltt}
+\end{kframe}
+\end{knitrout}
+
+O A no final do nome da função, indica que a característica tem somente efeitos genéticos aditivos. A função recebe como argumento o número de QTLs por cromossomo (nQtlPerChr).
+
+Finalmente, deve-se informar como o sexo dos indivíduos será determinado na simulação. A maneira usual é exigir que se tenha a mesma quantidade de machos e fêmeas:
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{parSim}\hlopt{$}\hlkwd{setSexes}\hlstd{(}\hlstr{"yes_sys"}\hlstd{)}
+\end{alltt}
+\end{kframe}
+\end{knitrout}
+
+
+O objeto parSim será utilizado em várias outras funções durante o processo de simulação. Se quisermos que esse objeto seja usado automaticamente pelas outras funções que precisarão dele, devo-se nomeá-lo como \textbf{SP}, pois esse o nome padrão do objeto de parâmetros da simulação considerado pelo AlphaSimR quando outro nome não é fornecido.
+
+\subsection{Simulando o Programa de Melhoramento}
+
+O primeiro passo no processo de simular a dinâmica de um programa de melhoramento genético animal é simular a população inicial ($G_0$). Para essa finalidade utiliza-se os haplótipos fundadores armazenados no objeto \emph{haplo} e os parâmetros da simulação armazenados em \emph{parSim}:
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{pop}\hlkwb{<-}\hlkwd{newPop}\hlstd{(haplo,} \hlkwc{simParam} \hlstd{= parSim)}
+\end{alltt}
+\end{kframe}
+\end{knitrout}
+
+\emph{pop} representa uma população de indivíduos que é a principal unidade no AlphaSimR. As população podem ser manipuladas diretamente por comandos básicos do R, como [ ] para seleção de indivíduos e formação de sub-populações e c() para concatenar populações ou sub-populações.
+
+Para verificar se o programa está atingindo seus objetivos, inicialmente consideraremos as médias produzidas a cada geração, devido aos processos de seleção e acasalamentos. Para isso, basta armazenar as médias em um vetor:
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{mediasGen}\hlkwb{<-}\hlkwd{meanG}\hlstd{(pop)}
+\end{alltt}
+\end{kframe}
+\end{knitrout}
+
+A função \emph{meanG} calcula a média da geração atual.
+
+Para que ocorra a simulação de várias gerações, precisa-se inserir os processos de seleção e acasalamento entre gerações sucessivas. O pacote AlphaSimR tem funções que executam esses processos independentemente, entretanto, nessa etapa, utilizaremos uma função que reune a seleção baseada nos fenótipos (seleção individual) com o acasalamento ao acaso dos indivíduos selecionados: \emph{selectCross}.
+
+Para simular 20 gerações, basta utilizar essa função dentro de um loop:
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlkwa{for}\hlstd{(geracao} \hlkwa{in} \hlnum{1}\hlopt{:}\hlnum{20}\hlstd{)\{}
+  \hlstd{pop}\hlkwb{<-}\hlkwd{selectCross}\hlstd{(pop,}\hlkwc{nFemale} \hlstd{=} \hlnum{100}\hlstd{,} \hlkwc{nMale} \hlstd{=} \hlnum{10}\hlstd{,} \hlkwc{use} \hlstd{=} \hlstr{"gv"}\hlstd{,}
+                   \hlkwc{nCrosses} \hlstd{=} \hlnum{500}\hlstd{,} \hlkwc{simParam} \hlstd{= parSim)}
+  \hlstd{mediasGen}\hlkwb{<-}\hlkwd{c}\hlstd{(mediasGen,} \hlkwd{meanG}\hlstd{(pop))}
+\hlstd{\}}
+\end{alltt}
+\end{kframe}
+\end{knitrout}
+
+A função \emph{selectCross} usa como argumentos a população atual (\emph{pop}), o número de fêmeas a serem selecionadas (\emph{nFemale}), o número de macho a serem selecionados (\emph{nMale}), o critério de seleção (\emph{use}), o número de acasalamentos a ser realizado entre as fêmeas e machos selecionados (\emph{nCrosses}) e os parâmetros da simulação (\emph{simParam})
+
+Finalmente, pode-se analizar os resultados por meio de um gráfico das médias de cada geração:
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlkwd{plot}\hlstd{(}\hlnum{0}\hlopt{:}\hlnum{20}\hlstd{, mediasGen,} \hlkwc{xlab} \hlstd{=} \hlstr{"Geração"}\hlstd{,}
+     \hlkwc{ylab} \hlstd{=} \hlstr{"Valor Genético Médio"}\hlstd{,} \hlkwc{type} \hlstd{=} \hlstr{"l"}\hlstd{)}
+\end{alltt}
+\end{kframe}
+\includegraphics[width=\maxwidth]{figure/r_grafico-1} 
+\end{knitrout}
+
+\end{document}

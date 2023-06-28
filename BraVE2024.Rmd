@@ -1,0 +1,140 @@
+---
+title: "Simulação de um programa de melhoramento"
+author: "Ricardo da Fonseca"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(AlphaSimR)
+```
+
+## Apresentação
+
+Essa atividade é parte do conteúdo ministrado dentro do programa BRaVE da Unesp. As instituições envolvidas são a Universidade Estadual Paulista "Julio de Mesquita Filho" campus de Dracena (FCAT) e a ???????????????
+A atividade proposta é a simulação de alguns aspectos de um programa de Melhoramento Genético Animal, de forma que os alunos possam consolidar seus conhecimentos recebidos percebendo e aplicando elementos aprendidos durante os seus respectivos cursos nas suas Universidades.
+
+## Visão Geral da Atividade
+
+Cada grupo fará o papel de um gestor de um programa de Melhoramento Genético Animal, tomando decisões sobre a seleção e acasalamento dos indivíduos da população.
+A atividade acontecerá em duas etapas:
+1. Seleção e decisões de acasalamento baseados em uma única característica durante m gerações (início do programa)
+2. Seleção e decisões de acasalamento baseados em mais de uma característica durante n gerações
+A cada nova geração, os gestores deverão decidir quais informações utilizar e como criar os seus critérios de seleção e definir suas estratégias de acasalamento.
+
+## Visão Geral do Processo de Simulação
+
+Para simular os dados de um programa de Melhoramento Genético utilizaremos o pacote do sistema R denominado AlphaSimR.
+
+A maior parte dos processos de simulação seguem os seguintes passos:
+
+1. Definir os parâmetros da simulação;
+
+2. Gerar a população-base (população inicial ou $G_0$);
+
+3. Aplicar o processo de seleção e estratégias de acasalamentos;
+
+4. Gerar as populações seguintes ($G_1, G_2, G_3\dots, G_n$); 
+
+5. Examinar os resultados.
+
+No AlphaSimR as simulações são realizada de forma um pouco diferente:
+
+1. Criar haplótipos fundadores;
+
+2. Ajustar parâmetros da simulação;
+
+3. Modelar o programa de Melhoramento Genético Animal;
+
+4. Examinar os resultados.
+
+## Instalando o AlphaSimR
+
+Com o sistema R instalado no seu computador (preferencialmente junto com a interface RStudio), para instalar o AlphaSimR, basta digitar no console: 
+```{r install, include=TRUE,eval=FALSE}
+install.packages("AlphaSimR")
+```
+
+Com o pacote instalado, é necessário carregá-lo no sistema R para que suas funcionalidades possam ser utilizadas:
+```{r acoplamento, include=TRUE, eval=FALSE}
+library(AlphaSimR)
+```
+
+Se estiver utilizando o RStudio, também é possível ir até a aba "Packages" e clicar na caixa de verificação ao lado do nome do pacote.
+
+## Simulando...
+
+### Haplótipos
+
+Com o AlphaSimR carregado a primeira ação deve ser executar o passo 1.
+```{r haplotipos}
+haplo<-runMacs(nInd=500, nChr=25, segSites=1000,
+               species="GENERIC", inbred=FALSE)
+haplo
+```
+
+A função runMacs cria os haplótipos fundadores, recebendo como argumentos o número de indivíduos (nInd), o número de cromossomos (nChr), o número de locos (segSites), o indicador da espécie a ser simulada (species) e o indicador se endogamia entre os indivíduos deve ser simulada (inbred). Olhando para os valores inseridos nos argumentos da função é possível perceber que serão simulados haplótipos para 500 indivíduos não endogâmicos que formarão a população-base ($G_0$), com cada indivíduo possuindo 25 cromossomos e 1000 locos por cromossomo. A popualação será considerada de uma espécie genérica, que não leva em consideração particularidades de alguma espécie de animal doméstico (como o número de cromossomos, nível de endogamia, etc).
+
+Os haplótipos da população-base também podem ser formados por meio da função quickHaplo, a qual recebe, basicamente, os mesmo argumento da função runMacs, entretanto, simulação de forma muito mais rápida por meio da simplificação dos processos envolvidos. Ao final da simulação, todos os locos terão seus alelos com frequência igual a 0,5 e em equilíbrio de ligação. Para saber mais sobre essa função: 
+```{r quickH, eval=FALSE}
+help("quickHaplo")
+```
+
+### Ajustando os Parâmetros da Simulação
+
+Essa etapa é realizada com 3 passos. No passo 1 um objeto com os parâmetros da simulação é inicializado com os haplótipos da população-base:
+```{r parmetros1}
+parSim<-SimParam$new(haplo)
+```
+
+Note que SimParam é uma lista do AlphaSimR e acessa-se a função *new*, que é um componente da lista, por meio do símbolo $. Nesse passo, a lista SimParam é inicializada com as informações dos haplótipos gerados no passo anterior.
+
+O próximo passo é adicionar características à simulação. Uma características com apenas efeitos genéticos aditivos pode ser criada acessando-se a função \emph{addTraitA} que é outro componente da lista SimParam:
+```{r carac}
+parSim$addTraitA(nQtlPerChr=1000)
+```
+
+O A no final do nome da função, indica que a característica tem somente efeitos genéticos aditivos. A função recebe como argumento o número de QTLs por cromossomo (nQtlPerChr).
+
+Finalmente, deve-se informar como o sexo dos indivíduos será determinado na simulação. A maneira usual é exigir que se tenha a mesma quantidade de machos e fêmeas:
+```{r sexo}
+parSim$setSexes("yes_sys")
+```
+
+O objeto parSim será utilizado em várias outras funções durante o processo de simulação. Se quisermos que esse objeto seja usado automaticamente pelas outras funções que precisarão dele, devo-se nomeá-lo como **SP**, pois esse o nome padrão do objeto de parâmetros da simulação considerado pelo AlphaSimR quando outro nome não é fornecido.
+
+### Simulando o Programa de Melhoramento
+
+O primeiro passo no processo de simular a dinâmica de um programa de melhoramento genético animal é simular a população inicial ($G_0$). Para essa finalidade utiliza-se os haplótipos fundadores armazenados no objeto *haplo* e os parâmetros da simulação armazenados em *parSim*:
+```{r g0}
+pop<-newPop(haplo, simParam = parSim)
+```
+
+*pop* representa uma população de indivíduos que é a principal unidade no AlphaSimR. As população podem ser manipuladas diretamente por comandos básicos do R, como [ ] para seleção de indivíduos e formação de sub-populações e c() para concatenar populações ou sub-populações.
+
+Para verificar se o programa está atingindo seus objetivos, inicialmente consideraremos as médias produzidas a cada geração, devido aos processos de seleção e acasalamentos. Para isso, basta armazenar as médias em um vetor:
+```{r medias}
+mediasGen<-meanG(pop)
+```
+
+A função *meanG* calcula a média da geração atual.
+
+Para que ocorra a simulação de várias gerações, precisa-se inserir os processos de seleção e acasalamento entre gerações sucessivas. O pacote AlphaSimR tem funções que executam esses processos independentemente, entretanto, nessa etapa, utilizaremos uma função que reune a seleção baseada nos fenótipos (seleção individual) com o acasalamento ao acaso dos indivíduos selecionados: *selectCross*.
+
+Para simular 20 gerações, basta utilizar essa função dentro de um loop:
+```{r geracoes}
+for(geracao in 1:20){
+  pop<-selectCross(pop,nFemale = 100, nMale = 10, use = "gv",
+                   nCrosses = 500, simParam = parSim)
+  mediasGen<-c(mediasGen, meanG(pop))
+}
+```
+
+A função *selectCross* usa como argumentos a população atual (*pop*), o número de fêmeas a serem selecionadas (*nFemale*), o número de macho a serem selecionados (*nMale*), o critério de seleção (*use*), o número de acasalamentos a ser realizado entre as fêmeas e machos selecionados (*nCrosses*) e os parâmetros da simulação (*simParam*)
+
+Finalmente, pode-se analizar os resultados por meio de um gráfico das médias de cada geração:
+```{r grafico}
+plot(0:20, mediasGen, xlab = "Geração",
+     ylab = "Valor Genético Médio", type = "l")
+```
